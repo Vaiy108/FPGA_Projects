@@ -8,3 +8,10 @@
 1. Open `ise/ALU_Module.xise`
 2. Set `ALU_test` as top module (for synthesis) or `ALU_module_tb` (for simulation)
 3. Run ISim simulation
+
+## Author
+**Vasan Iyer**  
+FPGA & Digital Design Engineer  
+Focus: VHDL, QuartusPrime, Xilinx ISE, Altera, ISim,  ModelSim, Signal Processing  
+GitHub: https://github.com/Vaiy108
+
