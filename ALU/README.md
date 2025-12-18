@@ -1,7 +1,7 @@
 # FPGA ALU (VHDL) — Xilinx ISE (Spartan-6)
 
 ## Contents
-- `src/ALU_test.vhd` — ALU implementation
+- `src/ALU_test.vhd` — Arithmetic and Logic Unit (ALU) implementation
 - `tb/ALU_module_tb.vhd` — Testbench
 
 ## How to run (ISE)
