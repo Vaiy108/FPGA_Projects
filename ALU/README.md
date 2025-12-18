@@ -1,4 +1,6 @@
 # FPGA ALU (VHDL) — Xilinx ISE (Spartan-6)
+This project implements a synthesizable Arithmetic and Logic Unit (ALU) in VHDL, verified using a dedicated testbench and targeting Xilinx Spartan-6 devices using ISE.
+
 
 ## Contents
 - `src/ALU_test.vhd` — Arithmetic and Logic Unit (ALU) implementation
@@ -12,6 +14,7 @@
 ## Author
 **Vasan Iyer**  
 FPGA & Digital Design Engineer  
-Focus: VHDL, QuartusPrime, Xilinx ISE, Altera, ISim,  ModelSim, Signal Processing  
+Focus: VHDL, FPGA Digital Design, Xilinx ISE, Quartus Prime, ISim, ModelSim, Signal Processing
+
 GitHub: https://github.com/Vaiy108
 
