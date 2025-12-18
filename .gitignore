@@ -1,0 +1,23 @@
+# Xilinx ISE generated files
+**/ise/
+isim/
+_xmsgs/
+iseconfig/
+xlnx_auto_*/
+netgen/
+tmp/
+xst/
+
+# Simulation outputs
+*.wdb
+*.log
+*.jou
+*.rpt
+*.exe
+*.cmd
+
+# OS/editor junk
+.DS_Store
+Thumbs.db
+*~
+*.swp
