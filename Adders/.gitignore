@@ -12,6 +12,7 @@ xst/
 *.stx
 *.xreport
 *.html
+**/ise/
 
 # ISim / simulation outputs
 isim/
