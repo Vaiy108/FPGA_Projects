@@ -1,0 +1,37 @@
+# Xilinx ISE generated files
+_ngo/
+_xmsgs/
+iseconfig/
+xlnx_auto_*/
+netgen/
+tmp/
+xst/
+*.gise
+*.lso
+*.prj
+*.stx
+*.xreport
+*.html
+
+# ISim / simulation outputs
+isim/
+*.wdb
+*.exe
+*.log
+*.cmd
+fuse*
+isim*
+
+# Reports / misc
+*.rpt
+*.jou
+*.xml~
+xilinxsim.ini
+pepExtractor.prj
+
+# OS/editor junk
+.DS_Store
+Thumbs.db
+*~
+*.swp
+
