@@ -30,3 +30,13 @@ The projects range from basic combinational and sequential circuits to more adva
 ---
 
 ## Repository Structure
+
+
+---
+
+## Author
+**Vasan Iyer**  
+FPGA & Digital Design Engineer  
+Focus: VHDL, FPGA Digital Design, Xilinx ISE, Signal Processing  
+GitHub: https://github.com/Vaiy108
+
