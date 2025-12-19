@@ -9,7 +9,7 @@ The projects range from basic combinational and sequential circuits to more adva
 - Tools: Xilinx ISE, ISim, ModelSim
 - Language: VHDL
 
-![Mimas V2 FPGA Board](docs/mimas_v2.jpg)
+![Mimas V2 FPGA Board](docs/mimas_v2.png)
 
 ---
 
