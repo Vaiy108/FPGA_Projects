@@ -3,7 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.numeric_std.ALL;
 
 
-entity Example_03_With_Select_MUX4to1 is
+entity With_Select_MUX4to1 is
 	
 	port
 			(
@@ -16,9 +16,9 @@ entity Example_03_With_Select_MUX4to1 is
 				f		:	out	std_logic
 			);
 
-end Example_03_With_Select_MUX4to1;
+end With_Select_MUX4to1;
 
-architecture Behavioral of Example_03_With_Select_MUX4to1 is
+architecture Behavioral of With_Select_MUX4to1 is
 
 	signal	SEn		:	unsigned	(2 downto 0)	:=	(others=>'0');
 
