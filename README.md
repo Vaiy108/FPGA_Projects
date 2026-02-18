@@ -29,8 +29,53 @@ The projects range from basic combinational and sequential circuits to more adva
 
 ---
 
+### 🔹 Multiplexers
+**Combinational Selection Logic**
+
+- 4-to-1 multiplexer (with active-high enable)
+- Implemented using `with-select`
+- Fully verified with testbench
+- Clean separation of `src/` and `tb/`
+
+📁 `Multiplexers/`
+
+---
+
 ## Repository Structure
 
+FPGA_Projects/
+│
+├── ALU/
+├── Adders/
+├── Multiplexers/
+│ ├── src/
+│ └── tb/
+│
+└── README.md
+
+## Design Philosophy
+
+All designs in this repository follow:
+
+- Use of `numeric_std` (no deprecated libraries)
+- Strong typing (`unsigned`, `signed`)
+- Clear entity/architecture separation
+- Independent testbench verification
+- Clean folder structure for source and testbench
+
+---
+
+## Future Additions
+
+Planned modules:
+
+- Parameterized generic multiplexer
+- Registers & flip-flops
+- Counters
+- Comparators
+- Finite State Machines (FSM)
+- UART implementation
+- Signal processing blocks
 
 ---
 
