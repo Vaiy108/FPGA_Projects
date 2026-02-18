@@ -27,7 +27,6 @@ The projects range from basic combinational and sequential circuits to more adva
 - 16-bit signed adder using `numeric_std`  
 📁 `Adders/`
 
----
 
 ### 🔹 Multiplexers
 **Combinational Selection Logic**
