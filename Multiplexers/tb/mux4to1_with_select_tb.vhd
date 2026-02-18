@@ -4,13 +4,9 @@
 --
 -- Create Date:   22:44:57 02/18/2026
 -- Design Name:   
--- Module Name:   C:/Projects/Example_Module_03/Example_03_With_Select_MUX4to1_tb.vhd
--- Project Name:  Example_Module_03
--- Target Device:  
--- Tool versions:  
--- Description:   
+--
 -- 
--- VHDL Test Bench Created by ISE for module: Example_03_With_Select_MUX4to1
+-- VHDL Test Bench Created by ISE for module: With_Select_MUX4to1
 -- 
 -- Dependencies:
 -- 
@@ -33,22 +29,22 @@ use IEEE.numeric_std.ALL;
 -- arithmetic functions with Signed or Unsigned values
 --USE ieee.numeric_std.ALL;
  
-ENTITY Example_03_With_Select_MUX4to1_tb IS
-END Example_03_With_Select_MUX4to1_tb;
+ENTITY With_Select_MUX4to1_tb IS
+END With_Select_MUX4to1_tb;
  
-ARCHITECTURE behavior OF Example_03_With_Select_MUX4to1_tb IS 
+ARCHITECTURE behavior OF With_Select_MUX4to1_tb IS 
  
     -- Component Declaration for the Unit Under Test (UUT)
  
-    COMPONENT Example_03_With_Select_MUX4to1
+    COMPONENT With_Select_MUX4to1
     PORT(
          w0 : IN  std_logic;
          w1 : IN  std_logic;
-         w2 : IN  std_logic;
+         w2 : IN std_logic;
          w3 : IN  std_logic;
-         s :  IN unsigned(1 downto 0);
+          s :  IN unsigned(1 downto 0);
          En : IN  std_logic;
-         f : OUT  std_logic
+          f : OUT  std_logic
         );
     END COMPONENT;
     
@@ -70,7 +66,7 @@ ARCHITECTURE behavior OF Example_03_With_Select_MUX4to1_tb IS
 BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
-   uut: Example_03_With_Select_MUX4to1 PORT MAP (
+   uut: With_Select_MUX4to1 PORT MAP (
           w0 => w0,
           w1 => w1,
           w2 => w2,
