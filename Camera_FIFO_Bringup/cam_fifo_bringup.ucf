@@ -1,0 +1,35 @@
+CONFIG VCCAUX = "3.3";
+
+# Onboard clock
+NET "clk_100mhz" LOC = V10 | IOSTANDARD = LVCMOS33;
+NET "clk_100mhz" TNM_NET = "clk_100mhz_grp";
+TIMESPEC "TS_CLK" = PERIOD "clk_100mhz_grp" 10 ns HIGH 50%;
+
+# Camera data bus on P6 pins 1..8
+NET "cam_d[0]" LOC = U7  | IOSTANDARD = LVCMOS33;
+NET "cam_d[1]" LOC = V7  | IOSTANDARD = LVCMOS33;
+NET "cam_d[2]" LOC = T4  | IOSTANDARD = LVCMOS33;
+NET "cam_d[3]" LOC = V4  | IOSTANDARD = LVCMOS33;
+NET "cam_d[4]" LOC = U5  | IOSTANDARD = LVCMOS33;
+NET "cam_d[5]" LOC = V5  | IOSTANDARD = LVCMOS33;
+NET "cam_d[6]" LOC = R3  | IOSTANDARD = LVCMOS33;
+NET "cam_d[7]" LOC = T3  | IOSTANDARD = LVCMOS33;
+
+# Camera control on P7 pins 1..3
+NET "cam_rclk" LOC = R11 | IOSTANDARD = LVCMOS33;
+NET "cam_oe"   LOC = T11 | IOSTANDARD = LVCMOS33;
+NET "cam_rrst" LOC = R10 | IOSTANDARD = LVCMOS33;
+
+# Initialize OV7670 via SCCB ? enable real image data
+NET "cam_siod" LOC = T8 | IOSTANDARD = LVCMOS33;
+NET "cam_sioc" LOC = U8 | IOSTANDARD = LVCMOS33;
+
+# Onboard LEDs
+NET "led[0]" LOC = P15 | IOSTANDARD = LVCMOS33 | DRIVE = 8 | SLEW = FAST;
+NET "led[1]" LOC = P16 | IOSTANDARD = LVCMOS33 | DRIVE = 8 | SLEW = FAST;
+NET "led[2]" LOC = N15 | IOSTANDARD = LVCMOS33 | DRIVE = 8 | SLEW = FAST;
+NET "led[3]" LOC = N16 | IOSTANDARD = LVCMOS33 | DRIVE = 8 | SLEW = FAST;
+NET "led[4]" LOC = U17 | IOSTANDARD = LVCMOS33 | DRIVE = 8 | SLEW = FAST;
+NET "led[5]" LOC = U18 | IOSTANDARD = LVCMOS33 | DRIVE = 8 | SLEW = FAST;
+NET "led[6]" LOC = T17 | IOSTANDARD = LVCMOS33 | DRIVE = 8 | SLEW = FAST;
+NET "led[7]" LOC = T18 | IOSTANDARD = LVCMOS33 | DRIVE = 8 | SLEW = FAST;
