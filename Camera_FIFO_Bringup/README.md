@@ -18,6 +18,14 @@
 * Board: Numato Mimas V2 (Spartan-6)
 * Interface: Parallel data (D0–D7), FIFO control, SCCB
 
+<p align="center">
+<img src="media/cam_fifo_2.jpg" width="400"/>
+</p>
+
+<p align="center">
+<img src="media/cam_fifo_3.jpg" width="400"/>
+</p>
+
 ## Next Steps
 
 * Verify FIFO write/capture behavior
