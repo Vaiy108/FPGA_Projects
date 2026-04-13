@@ -1,10 +1,10 @@
 ----------------------------------------------------------------------------------
 -- Company: 
--- Engineer: 
+-- Engineer: Vasan Iyer
 -- 
 -- Create Date:    20:55:33 04/12/2026 
 -- Design Name: 
--- Module Name:    cam_fifo_bringup - Behavioral 
+-- Module Name:    cam_fifo_bringup - rtl
 -- Project Name: 
 -- Target Devices: 
 -- Tool versions: 
@@ -74,9 +74,9 @@ begin
     cam_siod <= siod_reg;
     led      <= led_reg;
 
-    --------------------------------------------------------------------------
+    
     -- FIFO read / LED display 
-    --------------------------------------------------------------------------
+    
     process(clk_100mhz)
 	 begin
 		 if rising_edge(clk_100mhz) then
