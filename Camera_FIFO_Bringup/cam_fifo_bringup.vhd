@@ -75,7 +75,7 @@ begin
     led      <= led_reg;
 
     
-    -- FIFO read / LED display 
+    --- FIFO read / LED display 
     
     process(clk_100mhz)
 	 begin
