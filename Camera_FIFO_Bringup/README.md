@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # OV7670 FIFO Camera Bring-up (Spartan-6 Mimas V2)
 
 ## Status
@@ -92,4 +92,4 @@ This stage confirms:
 Remaining issue is likely:
 
 * FIFO write timing or camera capture trigger
->>>>>>> 9228c7b (Add camera FIFO bring-up project with working SCCB init)
+
