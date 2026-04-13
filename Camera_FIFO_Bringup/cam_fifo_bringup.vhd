@@ -30,6 +30,7 @@ entity cam_fifo_bringup is
         cam_rrst   : out   std_logic;
         cam_sioc   : out   std_logic;
         cam_siod   : inout std_logic;
+		  cam_wrst 	 : out std_logic;
         led        : out   std_logic_vector(7 downto 0)
     );
 end entity;
@@ -43,6 +44,9 @@ architecture rtl of cam_fifo_bringup is
     signal oe_reg       : std_logic := '0';
     signal sample_cnt   : unsigned(19 downto 0) := (others => '0');
     signal led_reg      : std_logic_vector(7 downto 0) := (others => '0');
+	 
+	 signal wrst_reg 		: std_logic := '1';
+	 
 
     -- SCCB signals
     signal sccb_clk_div : unsigned(9 downto 0) := (others => '0');
@@ -88,6 +92,7 @@ begin
     cam_rrst <= rrst_reg;
     cam_oe   <= oe_reg;
     cam_sioc <= sioc_reg;
+	 cam_wrst <= wrst_reg;
 	 -- LEDs for showing Camera data
     led      <= led_reg;
 	 

@@ -15,14 +15,16 @@ NET "cam_d[5]" LOC = V5  | IOSTANDARD = LVCMOS33;
 NET "cam_d[6]" LOC = R3  | IOSTANDARD = LVCMOS33;
 NET "cam_d[7]" LOC = T3  | IOSTANDARD = LVCMOS33;
 
-# Camera control on P7 pins 1..3
-NET "cam_rclk" LOC = R11 | IOSTANDARD = LVCMOS33;
-NET "cam_oe"   LOC = T11 | IOSTANDARD = LVCMOS33;
-NET "cam_rrst" LOC = R10 | IOSTANDARD = LVCMOS33;
-
+# Camera control on P7 pins 1..5
+NET "cam_rclk" LOC = U8 | IOSTANDARD = LVCMOS33;
+NET "cam_oe"   LOC = V8 | IOSTANDARD = LVCMOS33;
+NET "cam_rrst" LOC = R8 | IOSTANDARD = LVCMOS33;
 # Initialize OV7670 via SCCB ? enable real image data
 NET "cam_siod" LOC = T8 | IOSTANDARD = LVCMOS33;
-NET "cam_sioc" LOC = U8 | IOSTANDARD = LVCMOS33;
+NET "cam_sioc" LOC = R5 | IOSTANDARD = LVCMOS33;
+
+# Camera control on P8 pin 1
+NET "cam_wrst" LOC = R11 | IOSTANDARD = LVCMOS33;
 
 # Onboard LEDs
 NET "led[0]" LOC = P15 | IOSTANDARD = LVCMOS33 | DRIVE = 8 | SLEW = FAST;
