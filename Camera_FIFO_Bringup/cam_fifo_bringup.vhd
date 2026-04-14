@@ -30,7 +30,12 @@ entity cam_fifo_bringup is
         cam_rrst   : out   std_logic;
         cam_sioc   : out   std_logic;
         cam_siod   : inout std_logic;
-		  cam_wrst 	 : out std_logic;
+		  cam_wrst 	 : out   std_logic;
+		  vga_hsync  : out   std_logic;
+		  vga_vsync  : out   std_logic;
+		  vga_r      : out   std_logic_vector(2 downto 0);
+		  vga_g      : out   std_logic_vector(2 downto 0);
+		  vga_b      : out   std_logic_vector(1 downto 0);
         led        : out   std_logic_vector(7 downto 0)
     );
 end entity;
@@ -87,12 +92,22 @@ architecture rtl of cam_fifo_bringup is
     --signal ack_ok       : std_logic := '0';
     signal ack_seen     : std_logic_vector(2 downto 0) := (others => '0');
 	 
+	 -- VGA timing (640x480 @ 60Hz)
+	 signal h_cnt 		 : unsigned(9 downto 0) := (others => '0');
+	 signal v_cnt 		 : unsigned(9 downto 0) := (others => '0');
+	 signal pixel_tick : std_logic := '0';
+	 signal clk_div    : unsigned(1 downto 0) := (others => '0');
+	 
 begin
+		--camera output assignments
     cam_rclk <= rclk_reg;
     cam_rrst <= rrst_reg;
     cam_oe   <= oe_reg;
     cam_sioc <= sioc_reg;
 	 cam_wrst <= wrst_reg;
+	 --VGA sync assignments
+	 vga_hsync <= '0' when (h_cnt >= 656 and h_cnt < 752) else '1';
+    vga_vsync <= '0' when (v_cnt >= 490 and v_cnt < 492) else '1';
 	 -- LEDs for showing Camera data
     led      <= led_reg;
 	 
@@ -112,10 +127,72 @@ begin
     -- drive low/high when enabled, release to Z for ACK
     cam_siod <= '0' when (siod_oe = '1' and siod_out = '0') else 'Z';
     siod_in  <= cam_siod;
+	 
+	 -- Clock division - Pixel clock divider process
+	 
+--	 process(clk_100mhz)
+--	 begin
+--		  if rising_edge(clk_100mhz) then
+--				clk_div <= clk_div + 1;
+--				pixel_tick <= clk_div(1); -- divide by 4 ? 25 MHz
+--		  end if;
+--	 end process;
+	 
+
+	 process(clk_100mhz)
+	 begin
+		  if rising_edge(clk_100mhz) then
+				if clk_div = "11" then
+					 clk_div <= (others => '0');
+					 pixel_tick <= '1';
+				else
+					 clk_div <= clk_div + 1;
+					 pixel_tick <= '0';
+				end if;
+		  end if;
+	 end process;
+	 
+	-- Process - VGA counter process (Add VGA counters)
+	process(clk_100mhz)
+	begin
+		 if rising_edge(clk_100mhz) then
+			  if pixel_tick = '1' then
+					if h_cnt = 799 then
+						 h_cnt <= (others => '0');
+
+						 if v_cnt = 524 then
+							  v_cnt <= (others => '0');
+						 else
+							  v_cnt <= v_cnt + 1;
+						 end if;
+
+					else
+						 h_cnt <= h_cnt + 1;
+					end if;
+			  end if;
+		 end if;
+	end process;
+	
+	-- Process - VGA color-bar process (Add color-bar generator)
+	process(h_cnt, v_cnt)
+	begin
+		 if (h_cnt < 640 and v_cnt < 480) then
+			  if h_cnt < 213 then
+					vga_r <= "111"; vga_g <= "000"; vga_b <= "00";
+			  elsif h_cnt < 426 then
+					vga_r <= "000"; vga_g <= "111"; vga_b <= "00";
+			  else
+					vga_r <= "000"; vga_g <= "000"; vga_b <= "11";
+			  end if;
+		 else
+			  vga_r <= "000";
+			  vga_g <= "000";
+			  vga_b <= "00";
+		 end if;
+	end process;
 
     --------------------------------------------------------------------------
-    -- FIFO read / LED display
-    --------------------------------------------------------------------------
+	 --FIFO process - FIFO read / LED display
     process(clk_100mhz)
     begin
         if rising_edge(clk_100mhz) then
@@ -160,8 +237,9 @@ begin
     end process;
 
     --------------------------------------------------------------------------
-    -- SCCB tick generator
-    --------------------------------------------------------------------------
+	 --SCCB process -
+	 
+	 -- SCCB tick generator
     process(clk_100mhz)
     begin
         if rising_edge(clk_100mhz) then
