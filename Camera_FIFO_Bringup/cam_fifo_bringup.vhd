@@ -36,6 +36,7 @@ entity cam_fifo_bringup is
 		  vga_r      : out   std_logic_vector(2 downto 0);
 		  vga_g      : out   std_logic_vector(2 downto 0);
 		  vga_b      : out   std_logic_vector(1 downto 0);
+		  cam_vsy 	 : in    std_logic;
         led        : out   std_logic_vector(7 downto 0)
     );
 end entity;
@@ -98,6 +99,9 @@ architecture rtl of cam_fifo_bringup is
 	 signal pixel_tick : std_logic := '0';
 	 signal clk_div    : unsigned(1 downto 0) := (others => '0');
 	 
+	 -- register for camera byte
+	 signal cam_pixel : std_logic_vector(7 downto 0) := (others => '0');
+	 
 begin
 		--camera output assignments
     cam_rclk <= rclk_reg;
@@ -128,17 +132,9 @@ begin
     cam_siod <= '0' when (siod_oe = '1' and siod_out = '0') else 'Z';
     siod_in  <= cam_siod;
 	 
-	 -- Clock division - Pixel clock divider process
-	 
---	 process(clk_100mhz)
---	 begin
---		  if rising_edge(clk_100mhz) then
---				clk_div <= clk_div + 1;
---				pixel_tick <= clk_div(1); -- divide by 4 ? 25 MHz
---		  end if;
---	 end process;
-	 
 
+
+    -- Process - Clock division - Pixel clock divider process
 	 process(clk_100mhz)
 	 begin
 		  if rising_edge(clk_100mhz) then
@@ -152,6 +148,7 @@ begin
 		  end if;
 	 end process;
 	 
+	  
 	-- Process - VGA counter process (Add VGA counters)
 	process(clk_100mhz)
 	begin
@@ -173,17 +170,23 @@ begin
 		 end if;
 	end process;
 	
-	-- Process - VGA color-bar process (Add color-bar generator)
+	--Process - Camera data latch 
+	process(clk_100mhz)
+	begin
+		 if rising_edge(clk_100mhz) then
+			  if sample_cnt = 0 then
+					cam_pixel <= cam_d;
+			  end if;
+		 end if;
+	end process;
+	
+	-- Process - VGA color output (camera mapping)
 	process(h_cnt, v_cnt)
 	begin
 		 if (h_cnt < 640 and v_cnt < 480) then
-			  if h_cnt < 213 then
-					vga_r <= "111"; vga_g <= "000"; vga_b <= "00";
-			  elsif h_cnt < 426 then
-					vga_r <= "000"; vga_g <= "111"; vga_b <= "00";
-			  else
-					vga_r <= "000"; vga_g <= "000"; vga_b <= "11";
-			  end if;
+				vga_r <= cam_pixel(7 downto 5);
+            vga_g <= cam_pixel(4 downto 2);
+            vga_b <= cam_pixel(1 downto 0);
 		 else
 			  vga_r <= "000";
 			  vga_g <= "000";

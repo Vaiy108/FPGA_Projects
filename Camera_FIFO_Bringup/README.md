@@ -48,11 +48,18 @@ Successfully generated VGA signal from FPGA.
 
 ## Notes
 
+First live camera-to-VGA output achieved; display currently unstable/flickering due to lack of frame synchronization
+
+<p align="center">
+<img src="media/cam_to_vga_first.gif" width="400"/>
+</p>
+
 This stage confirms:
 
 * Camera is powered
 * FIFO responds
 * SCCB writes are effective
+* The camera → FIFO → FPGA → VGA pipeline works, though it needs stabilization
 
 Remaining issue is likely:
 

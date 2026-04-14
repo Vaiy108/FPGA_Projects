@@ -26,6 +26,9 @@ NET "cam_sioc" LOC = R5 | IOSTANDARD = LVCMOS33;
 # Camera control on P8 pin 1
 NET "cam_wrst" LOC = R11 | IOSTANDARD = LVCMOS33;
 
+# VSYNC from Camera on P8 pin 2
+NET "cam_vsy" LOC = T11 | IOSTANDARD = LVCMOS33;
+
 #VGA
 NET "vga_hsync" LOC = B12 | IOSTANDARD = LVCMOS33;
 NET "vga_vsync" LOC = A12 | IOSTANDARD = LVCMOS33;
