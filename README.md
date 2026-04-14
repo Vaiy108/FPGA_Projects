@@ -41,6 +41,7 @@ The projects range from basic combinational and sequential circuits to more adva
 ---
 
 ## Repository Structure
+```
 
 FPGA_Projects/
 │
@@ -51,7 +52,7 @@ FPGA_Projects/
 │ └── tb/
 │
 └── README.md
-
+```
 ## Design Philosophy
 
 All designs in this repository follow:
