@@ -1,23 +1,38 @@
-
 # OV7670 FIFO Camera Bring-up (Spartan-6 Mimas V2)
 
-## Status
+## Overview
 
-* FPGA programming via `.bin` works
-* FIFO read path functional
-* SCCB communication established (camera responds to register writes)
-* LED output shows stable but non-dynamic data
+This project implements a full hardware pipeline to interface an **OV7670 camera with AL422B FIFO** to a **Spartan-6 FPGA (Numato Mimas V2)** and display the output via **VGA**.
 
-## Current Behavior
+The goal is to build a real-time image acquisition and display system entirely in **VHDL**, covering:
 
-* LEDs show fixed pattern (e.g., D5, D7, D8 ON)
-* No live pixel stream yet
+- Camera configuration (SCCB)
+- FIFO-based buffering
+- VGA signal generation
+- End-to-end data flow from sensor → display
+
+---
+
+## Current Status
+
+✔ FPGA programming via `.bin` (Numato config tool)  
+✔ SCCB communication established (camera registers configured)  
+✔ FIFO read path functional  
+✔ VGA output working (640×480 @ 60Hz)  
+✔ End-to-end pipeline achieved:  
+**Camera → FIFO → FPGA → VGA**
+
+---
 
 ## Hardware Setup
 
-* Camera: OV7670 + AL422B FIFO
-* Board: Numato Mimas V2 (Spartan-6)
-* Interface: Parallel data (D0–D7), FIFO control, SCCB
+- **Camera:** OV7670 with AL422B FIFO  
+- **FPGA Board:** Numato Mimas V2 (Spartan-6)  
+- **Interface:**
+  - Parallel data: `D0–D7`
+  - FIFO control: `RCLK`, `RRST`, `OE`, `WR`, `WRST`
+  - SCCB: `SIOC`, `SIOD`
+  - Sync signals: `VSY`, `HREF`
 
 <p align="center">
 <img src="media/cam_fifo_2.jpg" width="400"/>
@@ -27,67 +42,147 @@
 <img src="media/cam_fifo_3.jpg" width="400"/>
 </p>
 
-## Next Steps
+---
 
-* Verify FIFO write/capture behavior
-* Check camera clock (XCLK)
-* Implement full SCCB initialization sequence
-* Move to VGA output
+## VGA Output Test (640×480 @ 60Hz)
 
-## VGA Output Test (640x480 @ 60Hz)
+A stable VGA signal was first verified using a test pattern:
 
-Successfully generated VGA signal from FPGA.
-
-- Resolution: 640x480
-- Test pattern: RGB color bars
-- Verified on external monitor
+- Resolution: **640×480 @ 60Hz**
+- Output: RGB color bars
 
 <p align="center">
 <img src="media/vga_color_bars.jpg" width="400"/>
 </p>
 
-## Notes
+This confirmed:
+- Correct timing generation
+- Proper monitor synchronization
 
-First live camera-to-VGA output achieved; display currently unstable/flickering due to lack of frame synchronization
+---
+
+## Camera Bring-up Progress
+
+### 1. FIFO + LED Validation
+
+- FIFO read path verified using LEDs  
+- Stable (but static) data observed on LED outputs  
+
+---
+
+### 2. First Camera-to-VGA Output
+
+Initial live pipeline achieved:
 
 <p align="center">
 <img src="media/cam_to_vga_first.gif" width="400"/>
 </p>
 
-Implemented FIFO-driven VGA raster with first fullscreen camera-driven output
+- Camera data successfully reaches VGA  
+- Output appears unstable due to lack of synchronization  
+
+---
+
+### Fullscreen Camera Output (FIFO-driven)
+
+Implemented continuous FIFO read mapped to VGA raster:
+
 <p align="center">
 <img src="media/cam_to_vga_fullscreen.gif" width="400"/>
 </p>
 
-### FIFO-driven camera output (unsynchronized)
+---
 
-At this stage, the FPGA reads continuous pixel data from the FIFO and displays it via VGA.
+### Unsynchronized Camera Output
 
-The output appears as horizontal noisy patterns because:
-- VGA timing is not yet synchronized with camera frame timing
-- FIFO is read continuously without line/frame alignment
+Current output stage:
 
 <p align="center">
 <img src="media/cam_to_vga_unsync.gif" width="400"/>
 </p>
 
-This confirms:
-- Camera is producing data
-- FIFO buffering is working
-- VGA pipeline is functional
+#### Observed behavior:
+- Fullscreen dynamic pixel activity  
+- Coarse/noisy patterns  
+- Visible motion when scene changes  
 
+#### Interpretation:
+This confirms the complete pipeline is operational:
 
+✔ Camera is producing pixel data  
+✔ FIFO buffering is working  
+✔ FPGA is reading data correctly  
+✔ VGA pipeline is functional  
 
-Next step: frame synchronization using VSYNC and HREF.
+---
 
-This stage confirms:
+## ⚠ Current Limitation
 
-* Camera is powered
-* FIFO responds
-* SCCB writes are effective
-* The camera → FIFO → FPGA → VGA pipeline works, though it needs stabilization
+The displayed image is **not yet stable** due to lack of proper frame synchronization.
 
-Remaining issue is likely:
+### Root Cause:
+- VGA timing is independent of camera timing  
+- FIFO is read continuously without:
+  - frame alignment (`VSY`)  
+  - line alignment (`HREF`)  
+- No controlled frame capture (FIFO keeps updating while being read)  
 
-* FIFO write timing or camera capture trigger
+---
+
+## 🔧 Technical Summary
+
+| Component | Status |
+|----------|--------|
+| SCCB (Camera Config) | ✅ Working |
+| FIFO Write (Camera side) | ⚠ Not fully controlled |
+| FIFO Read (FPGA side) | ✅ Working |
+| VGA Timing | ✅ Stable |
+| Frame Synchronization | ❌ Not implemented |
+
+---
+
+## Next Steps
+
+- Implement **frame-synchronous capture**
+  - Use `VSY` for frame start  
+  - Use `HREF` for line alignment  
+- Control FIFO write/read phases  
+- Freeze a single frame before VGA readout  
+- Improve image stability  
+
+---
+
+## Key Learnings
+
+- Interfacing image sensors requires strict timing alignment  
+- FIFO buffers simplify data capture but require careful control  
+- VGA output is independent and must be synchronized manually  
+- Hardware debugging (LEDs, partial pipelines) is critical  
+
+---
+
+## Current Achievement
+
+A full hardware pipeline has been demonstrated:
+
+> **OV7670 Camera → AL422B FIFO → Spartan-6 FPGA → VGA Display**
+
+Even though the image is not yet stable, this stage proves:
+- Real camera data acquisition  
+- Successful FPGA-based video output  
+- Working end-to-end system  
+
+---
+
+## Planned Improvements
+
+- Frame-stable image capture  
+- Basic image processing (threshold / grayscale)  
+- Optional BRAM-based image processing demo  
+
+---
+
+## Summary
+
+This project successfully demonstrates **low-level camera interfacing and video output using FPGA**, with the remaining challenge focused on **frame synchronization and stabilization**.
 
