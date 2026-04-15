@@ -54,6 +54,11 @@ First live camera-to-VGA output achieved; display currently unstable/flickering 
 <img src="media/cam_to_vga_first.gif" width="400"/>
 </p>
 
+Implemented FIFO-driven VGA raster with first fullscreen camera-driven output
+<p align="center">
+<img src="media/cam_to_vga_fullscreen.gif" width="400"/>
+</p>
+
 This stage confirms:
 
 * Camera is powered

@@ -29,6 +29,9 @@ NET "cam_wrst" LOC = R11 | IOSTANDARD = LVCMOS33;
 # VSYNC from Camera on P8 pin 2
 NET "cam_vsy" LOC = T11 | IOSTANDARD = LVCMOS33;
 
+# HREF from Camera on P8 pin 3
+NET "cam_href" LOC = R10 | IOSTANDARD = LVCMOS33;
+
 #VGA
 NET "vga_hsync" LOC = B12 | IOSTANDARD = LVCMOS33;
 NET "vga_vsync" LOC = A12 | IOSTANDARD = LVCMOS33;
