@@ -59,6 +59,27 @@ Implemented FIFO-driven VGA raster with first fullscreen camera-driven output
 <img src="media/cam_to_vga_fullscreen.gif" width="400"/>
 </p>
 
+### FIFO-driven camera output (unsynchronized)
+
+At this stage, the FPGA reads continuous pixel data from the FIFO and displays it via VGA.
+
+The output appears as horizontal noisy patterns because:
+- VGA timing is not yet synchronized with camera frame timing
+- FIFO is read continuously without line/frame alignment
+
+<p align="center">
+<img src="media/cam_to_vga_unsync.gif" width="400"/>
+</p>
+
+This confirms:
+- Camera is producing data
+- FIFO buffering is working
+- VGA pipeline is functional
+
+
+
+Next step: frame synchronization using VSYNC and HREF.
+
 This stage confirms:
 
 * Camera is powered

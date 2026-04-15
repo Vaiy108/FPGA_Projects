@@ -37,7 +37,7 @@ entity cam_fifo_bringup is
         vga_g      : out   std_logic_vector(2 downto 0);
         vga_b      : out   std_logic_vector(1 downto 0);
         cam_vsy    : in    std_logic;
-		  cam_href   : in    std_logic;
+        cam_href   : in    std_logic;
         led        : out   std_logic_vector(7 downto 0)
     );
 end entity;
@@ -99,30 +99,12 @@ architecture rtl of cam_fifo_bringup is
     signal pixel_tick  : std_logic := '0';
     signal clk_div     : unsigned(1 downto 0) := (others => '0');
 
-    -- previous-state register cam_vsy_d
-    --signal cam_vsy_d   : std_logic := '0';
-	 signal href_dbg    : std_logic := '0';
+    -- FIFO-driven VGA pixel
+    signal fifo_pixel        : std_logic_vector(7 downto 0) := (others => '0');
+    signal fifo_read_pending : std_logic := '0';
 
-    -- register for camera byte
-    signal cam_pixel   : std_logic_vector(7 downto 0) := (others => '0');
-	 
-	 -- Camera frame / line tracking
-    signal cam_href_d   : std_logic := '1';
-	 signal cam_vsy_d    : std_logic := '0';
-    signal cam_vsy_d2   : std_logic := '0';
-
-    signal cam_x        : unsigned(9 downto 0) := (others => '0');
-    signal cam_y        : unsigned(9 downto 0) := (others => '0');
-	 -- Camera coordinate scaling
-    signal cam_x_div    : unsigned(1 downto 0) := (others => '0');
-    signal cam_y_div    : unsigned(1 downto 0) := (others => '0');
-	 signal cam_active   : std_logic := '0';
-	 
-	 -- thresholded pixel
-    signal cam_on : std_logic := '0';
-	      
-	-- FIFO-driven VGA pixel
-    signal fifo_pixel : std_logic_vector(7 downto 0) := (others => '0');
+    -- FIFO frame-start settle counter
+    signal rrst_hold_cnt     : unsigned(3 downto 0) := (others => '0');
 
 begin
     --camera output assignments
@@ -133,19 +115,15 @@ begin
     cam_wrst <= wrst_reg;
 
     --VGA sync assignments
-    vga_hsync <= '0' when (h_cnt >= 656 and h_cnt < 752) else '1';
-    vga_vsync <= '0' when (v_cnt >= 490 and v_cnt < 492) else '1';
-	 
-	 
+    vga_hsync <= '0' when (h_cnt >= to_unsigned(656, h_cnt'length) and h_cnt < to_unsigned(752, h_cnt'length)) else '1';
+    vga_vsync <= '0' when (v_cnt >= to_unsigned(490, v_cnt'length) and v_cnt < to_unsigned(492, v_cnt'length)) else '1';
 
     -- LEDs for showing Camera data
     led <= led_reg;
---	 led(0) <= href_dbg;
---    led(7 downto 1) <= led_reg(7 downto 1);
-	 
---	 led(0) <= href_dbg;
---    led(3 downto 1) <= std_logic_vector(cam_y(2 downto 0));
---    led(7 downto 4) <= led_reg(7 downto 4);
+    --led <= cam_d;
+    -- led(0) <= cam_href;
+    -- led(1) <= cam_vsy;
+    -- led(7 downto 2) <= (others => '0');
 
     -- SCCB debug LED assignments, using LEDs for SCCB
     -- led(0) <= ack_seen(0);
@@ -153,7 +131,6 @@ begin
     -- led(2) <= ack_seen(2);
     -- led(3) <= '1' when sccb_state = DONE else '0';
     -- led(4) <= '1' when sccb_state = FAIL else '0';
-    --
     -- led(5) <= '1' when write_count >= 1 else '0';
     -- led(6) <= '1' when write_count >= 3 else '0';
     -- led(7) <= '1' when write_count = 5 else '0';
@@ -180,91 +157,37 @@ begin
 
     -- Process - VGA counter process (Add VGA counters)
     process(clk_100mhz)
-	 begin
-		  if rising_edge(clk_100mhz) then
-			   if pixel_tick = '1' then
-					 if h_cnt = 799 then
-						  h_cnt <= (others => '0');
-
-						  if v_cnt = 524 then
-							   v_cnt <= (others => '0');
-						  else
-							   v_cnt <= v_cnt + 1;
-						  end if;
-					 else
-						  h_cnt <= h_cnt + 1;
-					 end if;
-			   end if;
-		  end if;
-	 end process;
-
-    --Process - Camera data latch and camera-side pixel/line counters	 
-	 process(clk_100mhz)
     begin
         if rising_edge(clk_100mhz) then
-            -- keep previous sync states
-            cam_vsy_d2  <= cam_vsy;
-            cam_href_d  <= cam_href;
-				
-				href_dbg <= not cam_href;
-				
-				-- VSY rising edge = new frame
-            if (cam_vsy_d2 = '0' and cam_vsy = '1') then
-                cam_x      <= (others => '0');
-                cam_y      <= (others => '0');
-                cam_active <= '0';
+            if pixel_tick = '1' then
+                if h_cnt = to_unsigned(799, h_cnt'length) then
+                    h_cnt <= (others => '0');
 
-            else
-                -- HREF is active-low in this setup
-                if cam_href = '0' then
-                    cam_active <= '1';
-
-                    -- latch camera byte only occasionally
-                    if sample_cnt = 0 then
-                        cam_pixel <= cam_d;
-
-                        -- Fast-path threshold for black/white image
-                        if cam_d(7 downto 5) > "100" then
-                            cam_on <= '1';
-                        else
-                            cam_on <= '0';
-                        end if;
-                    end if;
-
-                    -- increment camera x every clock while line is active
-                    if cam_x < 639 then
-                        cam_x <= cam_x + 1;
+                    if v_cnt = to_unsigned(524, v_cnt'length) then
+                        v_cnt <= (others => '0');
                     else
-                        cam_x <= (others => '0');
+                        v_cnt <= v_cnt + 1;
                     end if;
-
                 else
-                    cam_active <= '0';
-
-                    -- detect end of active line: HREF low -> high
-                    if (cam_href_d = '0' and cam_href = '1') then
-                        cam_x <= (others => '0');
-
-                        if cam_y < 479 then
-                            cam_y <= cam_y + 1;
-                        else
-                            cam_y <= (others => '0');
-                        end if;
-                    end if;
+                    h_cnt <= h_cnt + 1;
                 end if;
             end if;
         end if;
     end process;
 
-				
-
-    -- Process - VGA color output (camera mapping using coarse coordinate match)	 
-	 process(h_cnt, v_cnt, fifo_pixel)
+    -- Process - VGA color output(FIFO-driven black/white threshold)
+    process(h_cnt, v_cnt, fifo_pixel)
     begin
-        if (h_cnt < 640 and v_cnt < 480) then
-            vga_r <= fifo_pixel(7 downto 5);
-            vga_g <= fifo_pixel(7 downto 5);
-            vga_b <= fifo_pixel(7 downto 6);
+        if (h_cnt < to_unsigned(640, h_cnt'length) and v_cnt < to_unsigned(480, v_cnt'length)) then
+            if fifo_pixel(7 downto 5) > "110" then
+                vga_r <= "111";
+                vga_g <= "111";
+                vga_b <= "11";
+            else
+                vga_r <= "000";
+                vga_g <= "000";
+                vga_b <= "00";
+            end if;
         else
             vga_r <= "000";
             vga_g <= "000";
@@ -277,8 +200,11 @@ begin
     process(clk_100mhz)
     begin
         if rising_edge(clk_100mhz) then
-            div_cnt <= div_cnt + 1;
+            div_cnt    <= div_cnt + 1;
             sample_cnt <= sample_cnt + 1;
+
+            -- default: no read clock unless we explicitly pulse it
+            rclk_reg <= '0';
 
             -- startup / initial reset sequence
             if startup_cnt < to_unsigned(5_000_000, startup_cnt'length) then
@@ -287,6 +213,8 @@ begin
                 rrst_reg <= '1';
                 wrst_reg <= '0';
                 rclk_reg <= '0';
+                fifo_read_pending <= '0';
+                rrst_hold_cnt <= (others => '0');
 
             elsif startup_cnt < to_unsigned(5_000_100, startup_cnt'length) then
                 startup_cnt <= startup_cnt + 1;
@@ -294,6 +222,8 @@ begin
                 rrst_reg <= '0';
                 wrst_reg <= '0';
                 rclk_reg <= '0';
+                fifo_read_pending <= '0';
+                rrst_hold_cnt <= (others => '0');
 
             elsif startup_cnt < to_unsigned(5_000_200, startup_cnt'length) then
                 startup_cnt <= startup_cnt + 1;
@@ -301,6 +231,8 @@ begin
                 rrst_reg <= '0';
                 wrst_reg <= '0';
                 rclk_reg <= '1';
+                fifo_read_pending <= '0';
+                rrst_hold_cnt <= (others => '0');
 
             elsif startup_cnt < to_unsigned(5_000_300, startup_cnt'length) then
                 startup_cnt <= startup_cnt + 1;
@@ -308,29 +240,49 @@ begin
                 rrst_reg <= '1';
                 wrst_reg <= '1';
                 rclk_reg <= '0';
+                fifo_read_pending <= '0';
+                rrst_hold_cnt <= (others => '0');
 
             else
                 -- normal running
                 oe_reg   <= '0';
                 wrst_reg <= '1';
 
+                -- complete pending FIFO read one clk_100mhz later
+                if fifo_read_pending = '1' then
+                    fifo_pixel <= cam_d;
+                    led_reg    <= cam_d;
+                    fifo_read_pending <= '0';
+                end if;
+
                 -- reset FIFO read pointer at start of each VGA frame
-                if (pixel_tick = '1' and h_cnt = 0 and v_cnt = 0) then
+                if (pixel_tick = '1' and
+                    h_cnt = to_unsigned(0, h_cnt'length) and
+                    v_cnt = to_unsigned(0, v_cnt'length)) then
+
                     rrst_reg <= '0';
-                    rclk_reg <= '0';
+                    rrst_hold_cnt <= to_unsigned(8, rrst_hold_cnt'length);
+                    fifo_read_pending <= '0';
+
+                elsif rrst_hold_cnt /= 0 then
+                    -- hold RRST low briefly, then release before reading
+                    rrst_reg <= '0';
+                    rrst_hold_cnt <= rrst_hold_cnt - 1;
+                    fifo_read_pending <= '0';
+
                 else
                     rrst_reg <= '1';
 
-                    -- during visible VGA region, advance FIFO and latch pixel
-                    if (pixel_tick = '1' and h_cnt < 640 and v_cnt < 480) then
-                        rclk_reg <= not rclk_reg;
+                    -- read only inside visible VGA area
+                    if (pixel_tick = '1' and
+                        h_cnt < to_unsigned(640, h_cnt'length) and
+                        v_cnt < to_unsigned(480, v_cnt'length)) then
 
-                        if rclk_reg = '0' then
-                            fifo_pixel <= cam_d;
-                            led_reg    <= cam_d;
+                        -- read only every 4th VGA pixel horizontally
+                        if h_cnt(1 downto 0) = "00" then
+                            rclk_reg <= '1';
+                            fifo_read_pending <= '1';
                         end if;
-                    else
-                        rclk_reg <= '0';
                     end if;
                 end if;
             end if;
@@ -346,7 +298,7 @@ begin
         if rising_edge(clk_100mhz) then
             tick_sccb <= '0';
             sccb_clk_div <= sccb_clk_div + 1;
-            if sccb_clk_div = 999 then
+            if sccb_clk_div = to_unsigned(999, sccb_clk_div'length) then
                 sccb_clk_div <= (others => '0');
                 tick_sccb <= '1';
             end if;
@@ -354,7 +306,6 @@ begin
     end process;
 
     -- Proper SCCB multi-write init with ACK check
-   
     process(clk_100mhz)
     begin
         if rising_edge(clk_100mhz) then
