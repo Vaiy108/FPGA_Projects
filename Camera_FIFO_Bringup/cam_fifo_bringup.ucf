@@ -28,12 +28,15 @@ NET "cam_wrst" LOC = R11 | IOSTANDARD = LVCMOS33;
 
 # VSYNC from Camera on P8 pin 2
 NET "cam_vsy" LOC = T11 | IOSTANDARD = LVCMOS33;
+#NET "cam_vsy" LOC = U13 | IOSTANDARD = LVCMOS33; #temp swap
 
 # WR from Camera on P8 pin 3
 NET "cam_wr" LOC = R10 | IOSTANDARD = LVCMOS33;
 
-# HREF from Camera on P8 pin 4
-NET "cam_href" LOC = T10 | IOSTANDARD = LVCMOS33;
+# HREF from Camera on P8 pin 5
+#NET "cam_href" LOC = T10 | IOSTANDARD = LVCMOS33;
+NET "cam_href" LOC = U13 | IOSTANDARD = LVCMOS33;  #temp swap
+#NET "cam_href" LOC = T11 | IOSTANDARD = LVCMOS33;
 
 #VGA
 NET "vga_hsync" LOC = B12 | IOSTANDARD = LVCMOS33;

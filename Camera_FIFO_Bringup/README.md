@@ -170,17 +170,51 @@ To improve stability and move toward a usable image, the design evolved through 
 
 ---
 
-## Current Limitation
+#### 🚀 Live Camera-Responsive Output
 
-The displayed image is **not yet a fully coherent frame**.
+After multiple iterations of synchronization fixes, buffering strategies, and resolution scaling, the system now produces live, scene-dependent pixel output from the camera.
 
-### Root Cause:
-- Incomplete synchronization between:
-  - Camera frame timing (`VSY`)
-  - Line timing (`HREF`)
-  - Framebuffer row indexing  
-- Rows are partially reused or misaligned  
-- Frame capture is not strictly bounded to one complete frame  
+<p align="center">
+<img src="media/cam_to_vga_gs_live.gif" width="400"/>
+</p>
+
+#### Key Observations
+The VGA output now responds to real-world lighting conditions
+Covering the camera lens results in a dark screen
+Increasing light exposure makes the image brighter
+Movement in front of the camera produces visible changes in pixel patterns
+
+#### What This Confirms
+
+This milestone verifies that the complete imaging pipeline is now functional:
+
+OV7670 Sensor → AL422B FIFO → FPGA Processing → VGA Output
+
+Specifically:
+
+Camera is generating valid pixel data
+FIFO buffering is correctly interfaced
+FPGA is successfully decoding and processing pixel stream
+VGA output reflects real-time camera input
+
+#### Current Image Quality
+Image appears coarse and blocky due to aggressive downsampling (80×60 → 640×480 scaling)
+Some horizontal repetition and artifacts still present
+Frame is not yet perfectly synchronized
+
+#### Significance
+
+This is the first fully functional end-to-end result where:
+
+Output is no longer random or purely timing artifacts
+System displays actual scene information from the camera
+
+
+#### Next Steps
+Improve frame stability and synchronization
+Reduce spatial artifacts
+Enhance visual clarity
+Optional: add simple image processing (thresholding / filtering)
 
 ---
 
