@@ -20,7 +20,9 @@ The goal is to build a real-time image acquisition and display system entirely i
 ✔ FIFO read path functional  
 ✔ VGA output working (640×480 @ 60Hz)  
 ✔ End-to-end pipeline achieved:  
-**Camera → FIFO → FPGA → VGA**
+**Camera → FIFO → FPGA → VGA**  
+✔ Grayscale pixel decoding implemented  
+✔ Structured framebuffer-based output achieved  
 
 ---
 
@@ -116,73 +118,139 @@ This confirms the complete pipeline is operational:
 
 ---
 
-## ⚠ Current Limitation
+## Architecture Evolution (NEW)
 
-The displayed image is **not yet stable** due to lack of proper frame synchronization.
+To improve stability and move toward a usable image, the design evolved through multiple approaches:
 
-### Root Cause:
-- VGA timing is independent of camera timing  
-- FIFO is read continuously without:
-  - frame alignment (`VSY`)  
-  - line alignment (`HREF`)  
-- No controlled frame capture (FIFO keeps updating while being read)  
+### Stage 1: Direct FIFO → VGA
+- Continuous FIFO read mapped directly to VGA  
+- Result: **unstable noise / flickering output**
 
 ---
 
-## 🔧 Technical Summary
+### Stage 2: Line Buffer / Band-Based Approach
+- Introduced buffering (line/band storage)
+- Reduced timing mismatch effects
+
+**Result:**
+- Stable output achieved  
+- Strong horizontal banding  
+- Repeated patterns across screen  
+
+**Limitation:**
+- No full-frame coherence  
+- Vertical structure incorrect  
+
+---
+
+### Stage 3: Framebuffer-Based Approach (Current)
+
+- Implemented **frame-based capture concept**
+- RGB565 → grayscale conversion added
+- Pixel data stored and mapped spatially to VGA
+
+<p align="center">
+<img src="media/cam_to_vga_pixelated.jpg" width="400"/>
+</p>
+
+<p align="center">
+<img src="media/cam_to_vga_pixelated.gif" width="400"/>
+</p>
+
+**Observed behavior:**
+- Structured grayscale pixel blocks  
+- Stable output (no flickering)  
+- Repeated horizontal slices  
+
+**Interpretation:**
+- Pixel decoding is correct  
+- Memory buffering is working  
+- VGA scaling is correct  
+- Remaining issue is **frame synchronization (vertical alignment)**  
+
+---
+
+## Current Limitation
+
+The displayed image is **not yet a fully coherent frame**.
+
+### Root Cause:
+- Incomplete synchronization between:
+  - Camera frame timing (`VSY`)
+  - Line timing (`HREF`)
+  - Framebuffer row indexing  
+- Rows are partially reused or misaligned  
+- Frame capture is not strictly bounded to one complete frame  
+
+---
+
+## Technical Summary
 
 | Component | Status |
 |----------|--------|
 | SCCB (Camera Config) | ✅ Working |
-| FIFO Write (Camera side) | ⚠ Not fully controlled |
+| FIFO Write (Camera side) | ⚠ Partially controlled |
 | FIFO Read (FPGA side) | ✅ Working |
 | VGA Timing | ✅ Stable |
-| Frame Synchronization | ❌ Not implemented |
+| Grayscale Conversion | ✅ Working |
+| Framebuffer Mapping | ⚠ Partially correct |
+| Frame Synchronization | ❌ Not fully implemented |
 
 ---
 
 ## Next Steps
 
-- Implement **frame-synchronous capture**
-  - Use `VSY` for frame start  
-  - Use `HREF` for line alignment  
-- Control FIFO write/read phases  
-- Freeze a single frame before VGA readout  
-- Improve image stability  
+- Implement strict **frame-synchronous capture**
+  - Reset on `VSY`
+  - Advance rows on `HREF`
+- Capture exactly one full frame (240 rows)
+- Eliminate repeated band artifacts
+- Achieve spatially correct image reconstruction  
 
 ---
 
 ## Key Learnings
 
 - Interfacing image sensors requires strict timing alignment  
-- FIFO buffers simplify data capture but require careful control  
-- VGA output is independent and must be synchronized manually  
-- Hardware debugging (LEDs, partial pipelines) is critical  
+- FIFO buffers simplify capture but do not solve synchronization  
+- VGA operates independently and must be aligned manually  
+- Incremental architecture refinement is essential in FPGA design  
+- Moving from streaming → buffering → frame-based design improves stability  
 
 ---
 
 ## Current Achievement
 
-A full hardware pipeline has been demonstrated:
+A complete camera-to-display pipeline has been demonstrated:
 
 > **OV7670 Camera → AL422B FIFO → Spartan-6 FPGA → VGA Display**
 
-Even though the image is not yet stable, this stage proves:
-- Real camera data acquisition  
-- Successful FPGA-based video output  
-- Working end-to-end system  
+Additionally:
+
+✔ Pixel data is decoded correctly (RGB565 → grayscale)  
+✔ Structured image data is visible (not random noise)  
+✔ Stable rendering pipeline achieved  
 
 ---
 
 ## Planned Improvements
 
-- Frame-stable image capture  
-- Basic image processing (threshold / grayscale)  
+- Fully synchronized frame capture  
+- Clean grayscale image output  
+- Basic image processing (thresholding, filtering)  
 - Optional BRAM-based image processing demo  
 
 ---
 
 ## Summary
 
-This project successfully demonstrates **low-level camera interfacing and video output using FPGA**, with the remaining challenge focused on **frame synchronization and stabilization**.
+This project demonstrates **end-to-end FPGA-based video acquisition and display**.
 
+Progression achieved:
+
+- Noise →  
+- Stable patterns →  
+- Structured pixel output →  
+- (Next) fully synchronized image  
+
+The remaining challenge is **precise frame synchronization**, not system functionality.
