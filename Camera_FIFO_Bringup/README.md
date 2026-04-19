@@ -170,7 +170,7 @@ To improve stability and move toward a usable image, the design evolved through 
 
 ---
 
-#### 🚀 Live Camera-Responsive Output
+#### Live Camera-Responsive Output
 
 After multiple iterations of synchronization fixes, buffering strategies, and resolution scaling, the system now produces live, scene-dependent pixel output from the camera.
 
