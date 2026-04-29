@@ -178,6 +178,15 @@ After multiple iterations of synchronization fixes, buffering strategies, and re
 <img src="media/cam_to_vga_gs_live.gif" width="400"/>
 </p>
 
+#### Live Camera-Responsive Output - Unskewed
+
+After multiple iterations of synchronization fixes, buffering strategies, resetting RCLK to 10 MHz the system now produces live, unskewed pixel output from the camera. The camera responsiveness has gotten better, though image clarity needs improvement.
+
+<p align="center">
+<img src="media/cam_to_vga_unskewed.gif" width="400"/>
+</p>
+
+
 #### Key Observations
 The VGA output now responds to real-world lighting conditions
 Covering the camera lens results in a dark screen
